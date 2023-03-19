@@ -1,54 +1,14 @@
-<!DOCTYPE html>
-<html style="font-size: 16px;" lang="fr"><head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
-    <meta name="keywords" content="Live stream">
-    <meta name="description" content="">
-    <title>Accueil</title>
-    <link rel="stylesheet" href="C:\Users\simon\Desktop\RPISurveillance\templates\nicepage.css" media="screen">
-<link rel="stylesheet" href="C:\Users\simon\Desktop\RPISurveillance\templates\Accueil.css" media="screen">
-    <script class="u-script" type="text/javascript" src="C:\Users\simon\Desktop\RPISurveillance\templates\jquery.js" defer=""></script>
-    <script class="u-script" type="text/javascript" src="C:\Users\simon\Desktop\RPISurveillance\templates\nicepage.js" defer=""></script>
-    <meta name="generator" content="Nicepage 5.6.16, nicepage.com">
-    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
-    
-    
-    <script type="application/ld+json">{
-		"@context": "http://schema.org",
-		"@type": "Organization",
-		"name": ""
-}</script>
-    <meta name="theme-color" content="#478ac9">
-    <meta property="og:title" content="Accueil">
-    <meta property="og:type" content="website">
-  <meta data-intl-tel-input-cdn-path="intlTelInput/"></head>
-  <body data-home-page="Accueil.html" data-home-page-title="Accueil" class="u-body u-xl-mode" data-lang="fr"><header class="u-clearfix u-header u-header" id="sec-711c"><div class="u-clearfix u-sheet u-sheet-1"></div></header>
-    <section class="u-align-center u-clearfix u-palette-1-base u-section-1" id="sec-3824">
-      <div class="u-clearfix u-sheet u-valign-middle-xs u-sheet-1">
-        <div class="u-align-left u-video u-video-1">
+<body>
+  <div class="container">
+      <div class="row">
           <div class="col-lg-8  offset-lg-2">
-            <h3 class="mt-5">Live Streaming</h3>
-            <img src="{{ url_for('video_feed') }}" width="50%">
-        </div>
-        </div>
-        <h2 class="u-text u-text-default u-text-1">Live stream</h2>
-        <a href="https://nicepage.com/k/quiz-html-templates" class="u-align-center u-btn u-button-style u-btn-1"><span class="u-file-icon u-icon"><img src="C:\Users\simon\Desktop\RPISurveillance\templates\images\3998038.png" alt=""></span>&nbsp;Enregistrer
-        </a>
+              <h3 class="mt-5">Live Streaming</h3>
+              <img src="{{ url_for('video_feed') }}" width="50%">
+          </div>
       </div>
-    </section>
-    
-    
-    <footer class="u-align-center u-clearfix u-footer u-grey-80 u-footer" id="sec-460d"><div class="u-clearfix u-sheet u-sheet-1"></div></footer>
-    <section class="u-backlink u-clearfix u-grey-80">
-      <a class="u-link" href="https://nicepage.com/website-templates" target="_blank">
-        <span>Website Templates</span>
-      </a>
-      <p class="u-text">
-        <span>created with</span>
-      </p>
-      <a class="u-link" href="" target="_blank">
-        <span>Website Builder Software</span>
-      </a>. 
-    </section>
-  
-</body></html>
+  </div>
+  <form method="post" action="/">
+      <input type="submit" value="Start recording" name="Start recording"/>
+      <input type="submit" value="Stop recording"" name="Stop recording" />
+  </form>
+  </body>
