@@ -10,9 +10,27 @@ camera = cv2.VideoCapture(0)
 
 scale_percent = 120
 
-def genFrames():
-    global record
+class Recorder:
+    color = (255, 0, 0)
     record = False
+    image = None
+    current_record_path = ""
+    writer = cv2.VideoWriter()
+    def getFileName(self):
+        date_string = datetime.now().strftime("%d-%m-%y--%H-%M-%S")
+        filename = 'Record_' + date_string + '.avi'
+        return filename
+    def create_writer(self):
+        out_path = self.getFileName()
+        self.current_record_path = out_path
+        self.writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'DIVX'), 20, (self.image.shape[1], self.image.shape[0]))
+    def release_writer(self):
+        self.writer.release()
+        
+        
+    
+recorder_object = Recorder()
+def genFrames():
     while True:
         success, frame = camera.read()
         #print(frame[0])
@@ -23,7 +41,11 @@ def genFrames():
         #Put date & time        
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        frame = cv2.putText(frame, dt_string, (10,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2,cv2.LINE_AA)
+        #logging.info(recorder_object.color)
+        frame = cv2.putText(frame, dt_string, (10,50), cv2.FONT_HERSHEY_SIMPLEX, 1, recorder_object.color, 2,cv2.LINE_AA)
+        recorder_object.image = frame
+        if(recorder_object.record):
+            recorder_object.writer.write(frame)
         if not success:
             break
             logging.error("Error : cannot get image")
@@ -38,13 +60,21 @@ def index():
     
     if request.method == 'POST':
         if request.form.get('Start recording') == 'Start recording':
-            record = True
+
             logging.info("Start recording")
+            recorder_object.color = (0, 0, 255)
+            recorder_object.record = True
+            logging.info("Video will be stored as " + str(recorder_object.getFileName()))
+            recorder_object.create_writer()
         elif request.form.get('Stop recording')== 'Stop recording':
-            record = False
+
             logging.info("Stop recording...")
+            recorder_object.color = (255, 0 ,0)
+            recorder_object.record = False
+            recorder_object.release_writer()            
         else:
             pass
+        #logging.info(recorder_object.color)
 
     return render_template('index.html')
 
