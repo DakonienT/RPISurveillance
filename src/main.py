@@ -2,9 +2,13 @@ import cv2
 from flask import Flask, render_template, Response, request
 import logging
 from xmlrpc.client import boolean
-import psutil
+import numpy as np
+#import imutils
 from datetime import datetime
 import socket
+
+
+
 app = Flask(__name__, template_folder=r'C:\Users\simon\Desktop\RPISurveillance\templates')
 camera = cv2.VideoCapture(0)
 
@@ -27,7 +31,30 @@ class Recorder:
     def release_writer(self):
         self.writer.release()
         
-        
+class SingleMotionDetector:
+    def __init__(self, accumWeight = 0.5):
+        self.accumWeight = accumWeight
+        self.bg = None
+    def update(self, image):
+        if self.bg is None:
+            self.bg = image.copy().astype("float")
+            return
+        cv2.accumulateWeighted(image, self.bg, self.accumWeight)
+    def detect(self, image, tVal=25):
+        delta = cv2.absdiff(self.bg.astype("uint8"), image)
+        thresh = cv2.threshold(delta, tVal, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.erode(thresh, None, iterations=2)
+        thresh = cv2.dilate(thresh, None, iterations=2)
+        contours = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if len(contours) == 0:
+            #No motion detected
+            return None
+        else:
+            for c in contours:
+                (x, y, w, h) = cv2.boundingRect(c)
+                (minX, minY) = (min(minX, x), min(minY, y))
+                (maxX, maxY) = (max(maxX, x + w), max(maxY, y + h))
+            return (thresh, (minX, minY, maxX, maxY))
     
 recorder_object = Recorder()
 def genFrames():
