@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 *.avi
+.vscode/launch.json
+logs/cifar10-model-v1/train/events.out.tfevents.1679523382.LAPTOP-SIMON.10672.0.v2
