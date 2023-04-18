@@ -5,13 +5,25 @@ from tensorflow.keras.callbacks import TensorBoard
 import tensorflow as tf
 import tensorflow_datasets as tfds
 import os
-
+import pathlib
+import PIL
 # hyper-parameters
+
 batch_size = 64
+img_height = 180
+img_width = 180
 # 10 categories of images (CIFAR-10)
-num_classes = 10
+num_classes = 5
 # number of training epochs
 epochs = 30
+
+dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
+data_dir = tf.keras.utils.get_file(origin=dataset_url, fname = 'flower_photos', untar=True)
+data_dir = pathlib.Path(data_dir)
+image_count = len(list(data_dir.glob('*/*.jpg')))
+print("Found " + str(image_count) + " images in " + str(data_dir))
+roses = list(data_dir.glob('roses/*'))
+PIL.Image.open(str(roses[0]))
 
 def load_data():
     """
@@ -22,17 +34,20 @@ def load_data():
         image = tf.image.convert_image_dtype(image, tf.float32)
         return image, label
     # loading the CIFAR-10 dataset, splitted between train and test sets
-    ds_train, info = tfds.load("cifar10", with_info=True, split="train", as_supervised=True)
-    ds_test = tfds.load("cifar10", split="test", as_supervised=True)
+    ds_train = tf.keras.utils.image_dataset_from_directory(data_dir, validation_split=0.2, subset="training", seed=123, image_size=(img_height, img_width), batch_size=batch_size)
+    ds_test = tf.keras.utils.image_dataset_from_directory(data_dir, validation_split=0.2,subset="validation",seed=123,image_size=(img_height, img_width), batch_size=batch_size)
+    class_names = ds_train.class_names
     # repeat dataset forever, shuffle, preprocess, split by batch
     ds_train = ds_train.repeat().shuffle(1024).map(preprocess_image).batch(batch_size)
     ds_test = ds_test.repeat().shuffle(1024).map(preprocess_image).batch(batch_size)
-    return ds_train, ds_test, info
+    return ds_train, ds_test
 
 def create_model(input_shape):
     # building the model
     model = Sequential()
-    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="same", input_shape=input_shape))
+    model.add(tf.keras.layers.Reshape(target_shape=(180, 180, 3)))
+    model.add(tf.keras.layers.Rescaling(1./255))
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="same", input_shape = (180, 180, 3)))
     model.add(Activation("relu"))
     model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="same"))
     model.add(Activation("relu"))
@@ -58,25 +73,26 @@ def create_model(input_shape):
     model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation="softmax"))
     # print the summary of the model architecture
-    model.summary()
+    
     # training the model using adam optimizer
     model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+    #model.summary()
     return model
 if __name__ == "__main__":
     # load the data
-    ds_train, ds_test, info = load_data()
+    ds_train, ds_test = load_data()
     # constructs the model
-    model = create_model(input_shape=info.features["image"].shape)
+    model = create_model(input_shape=3670)
     # some nice callbacks
-    logdir = os.path.join("logs", "cifar10-model-v1")
+    logdir = os.path.join("logs", "Flowers_V2")
     tensorboard = TensorBoard(log_dir=logdir)
     # make sure results folder exist
     if not os.path.isdir("results"):
         os.mkdir("results")
     # train
     model.fit(ds_train, epochs=epochs, validation_data=ds_test, verbose=1,
-              steps_per_epoch=info.splits["train"].num_examples // batch_size,
-              validation_steps=info.splits["test"].num_examples // batch_size,
+              steps_per_epoch=30,
+              validation_steps=30,
               callbacks=[tensorboard])
     # save the model to disk
-    model.save("results/cifar10-model-v1.h5")
+    model.save("results/Flowers_V2.h5")
